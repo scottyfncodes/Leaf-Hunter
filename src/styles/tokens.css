@@ -1,0 +1,93 @@
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 400 800;
+  font-stretch: 75% 100%;
+  font-display: swap;
+  src: url('/fonts/bricolage-grotesque-latin.woff2') format('woff2');
+}
+
+:root {
+  color-scheme: light dark;
+
+  /* Paper & ink — a cream trail map with deep pine ink. */
+  --paper: #f4efe4;
+  --paper-2: #ebe4d3;
+  --paper-3: #e1d9c4;
+  --card: #fffdf8;
+  --ink: #14231b;
+  --ink-2: #33463b;
+  --muted: #66746b;
+  --line: rgba(20, 35, 27, 0.12);
+  --line-strong: rgba(20, 35, 27, 0.22);
+
+  /* Brand accent — pine. */
+  --pine: #1f4d3a;
+  --pine-2: #2b6a4f;
+  --pine-soft: #dbe7dd;
+  --pine-ink: #ffffff;
+
+  /* Foliage status colors. Each has a fill (for chips/markers) and a text
+     color that meets contrast on the fill and on paper. */
+  --early: #4f8d5c;
+  --early-fill: #d9ead9;
+  --early-text: #23583a;
+  --turning: #e2b53b;
+  --turning-fill: #f7e6b1;
+  --turning-text: #6e4d0a;
+  --peak: #e2782d;
+  --peak-fill: #fbd9bd;
+  --peak-text: #8f3f0c;
+  --past: #b53a2f;
+  --past-fill: #f3cfc9;
+  --past-text: #7f261e;
+
+  --gold: #e0b23a;
+  --ember: #d9642a;
+
+  --radius-s: 10px;
+  --radius: 16px;
+  --radius-l: 22px;
+  --shadow: 0 1px 2px rgba(20, 35, 27, 0.06), 0 8px 24px -12px rgba(20, 35, 27, 0.25);
+  --shadow-lift: 0 2px 4px rgba(20, 35, 27, 0.08), 0 16px 40px -16px rgba(20, 35, 27, 0.35);
+
+  --font-display: 'Bricolage Grotesque', 'Avenir Next Condensed', 'Helvetica Neue', system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  --nav-h: 64px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --tap: 44px;
+  --gutter: 16px;
+  --content-max: 680px;
+  --wide-max: 1180px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #0f1a14;
+    --paper-2: #16241c;
+    --paper-3: #1e2f25;
+    --card: #182720;
+    --ink: #f1ede2;
+    --ink-2: #cfd7cf;
+    --muted: #93a197;
+    --line: rgba(241, 237, 226, 0.12);
+    --line-strong: rgba(241, 237, 226, 0.24);
+    --pine: #8fc7a5;
+    --pine-2: #a9d8bb;
+    --pine-soft: #1f3a2d;
+    --pine-ink: #0f1a14;
+    --early-fill: #1f3d28;
+    --early-text: #a9dcb6;
+    --turning-fill: #4a3a10;
+    --turning-text: #f5d77a;
+    --peak-fill: #55300f;
+    --peak-text: #ffb27a;
+    --past-fill: #4d1f1a;
+    --past-text: #ffb1a6;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+    --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+  }
+}
