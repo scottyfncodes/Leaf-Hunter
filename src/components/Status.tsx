@@ -1,11 +1,16 @@
 import { STATUS_META, type Condition } from '@/domain/foliage';
 import type { FoliageStatus } from '@/domain/types';
 
+/** Small drawn swatch in the status color. Always sits beside the status label. */
+export function StatusDot({ status }: { status: FoliageStatus }) {
+  return <span className={`sdot sdot--${status}`} aria-hidden="true" />;
+}
+
 export function StatusPill({ status, large, label }: { status: FoliageStatus; large?: boolean; label?: string }) {
   const meta = STATUS_META[status];
   return (
     <span className={`pill pill--${status}${large ? ' pill--lg' : ''}`}>
-      <span aria-hidden="true">{meta.glyph}</span>
+      <StatusDot status={status} />
       <span>{label ?? meta.label}</span>
     </span>
   );

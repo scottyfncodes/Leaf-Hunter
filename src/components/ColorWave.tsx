@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import type { ColorWave as WaveModel, BandSnapshot } from '@/domain/forecast';
 import { STATUS_META } from '@/domain/foliage';
+import { StatusDot } from './Status';
 import { formatShortDate } from '@/domain/dates';
 
 function BandRow({ b }: { b: BandSnapshot }) {
   const meta = STATUS_META[b.status];
   return (
     <li className="wave__band">
-      <span className={`wave__glyph wave__glyph--${b.status}`} aria-hidden="true">{meta.glyph}</span>
+      <span className={`wave__glyph wave__glyph--${b.status}`} aria-hidden="true"><StatusDot status={b.status} /></span>
       <span className="wave__label">
         {b.band.label}
         <span className="wave__sub">{meta.label} · ~{b.averagePercent}% · {b.band.range}</span>

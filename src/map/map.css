@@ -91,11 +91,17 @@
   background: var(--early);
 }
 
-.fmap__pin-glyph,
 .fmap__pin-num {
   transform: rotate(45deg);
   font-size: 12px;
   line-height: 1;
+}
+
+.fmap__pin-glyph {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
 }
 
 .fmap__pin-num {

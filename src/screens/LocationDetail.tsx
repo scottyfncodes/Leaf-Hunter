@@ -6,7 +6,7 @@ import { ACTIVITY_META } from '@/domain/filters';
 import { formatDrive, formatElevation, formatMiles } from '@/domain/geo';
 import { formatRange, formatRelative, formatShortDate, formatUntil } from '@/domain/dates';
 import { appleMapsDirectionsUrl, googleMapsDirectionsUrl } from '@/domain/chase';
-import { ColorMeter, ConfidenceLabel, SourcePill, StatusPill } from '@/components/Status';
+import { ColorMeter, ConfidenceLabel, SourcePill, StatusDot, StatusPill } from '@/components/Status';
 import { LeafArt } from '@/components/LeafArt';
 import { EmptyState } from '@/components/EmptyState';
 import { IconBack, IconCamera, IconCheck, IconExternal, IconHeart } from '@/components/Icons';
@@ -128,7 +128,7 @@ export function LocationDetailScreen() {
           </ul>
           <div className="chips" style={{ marginTop: 12 }} aria-label="Good for">
             {location.activities.map((a) => (
-              <span key={a} className="pill pill--neutral"><span aria-hidden="true">{ACTIVITY_META[a].glyph}</span> {ACTIVITY_META[a].label}</span>
+              <span key={a} className="pill pill--neutral">{ACTIVITY_META[a].label}</span>
             ))}
           </div>
         </section>
@@ -143,7 +143,7 @@ export function LocationDetailScreen() {
               {spotReports.slice(0, 6).map((r) => (
                 <article key={r.id} className="report-item">
                   <div className={`report-item__pct tnum`} style={{ color: `var(--${r.status}-text)` }}>
-                    <span aria-hidden="true">{STATUS_META[r.status].glyph}</span> {r.colorPercent}%
+                    <StatusDot status={r.status} /> {r.colorPercent}%
                     <small>{formatShortDate(new Date(r.observedAt))}</small>
                   </div>
                   <div>

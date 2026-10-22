@@ -40,10 +40,8 @@ export function LocationCard({ view, compact, onClick }: { view: LocationView; c
         <span><strong>{formatElevation(location.elevationFt)}</strong></span>
         <span>{updated}</span>
         <span>{peakText}</span>
-        <span className="spot__acts" role="img" aria-label={`Good for ${location.activities.map((a) => ACTIVITY_META[a].label).join(', ')}`}>
-          {location.activities.slice(0, 5).map((a) => (
-            <span key={a} title={ACTIVITY_META[a].label} aria-hidden="true">{ACTIVITY_META[a].glyph}</span>
-          ))}
+        <span className="spot__acts" aria-label={`Good for ${location.activities.map((a) => ACTIVITY_META[a].label).join(', ')}`}>
+          <span aria-hidden="true">{location.activities.slice(0, 4).map((a) => ACTIVITY_META[a].short).join(' · ')}</span>
         </span>
       </div>
       <div className="spot__side">

@@ -18,6 +18,7 @@ import {
   type TimingFilter,
 } from '@/domain/filters';
 import { STATUS_META, STATUS_ORDER } from '@/domain/foliage';
+import { StatusDot } from '@/components/Status';
 import type { Activity, FoliageStatus } from '@/domain/types';
 import { HeadlineBanner } from '@/components/Headline';
 import { ColorWaveCard } from '@/components/ColorWave';
@@ -115,7 +116,7 @@ export function ExploreScreen() {
               <div className="chips chips--scroll" aria-label="Quick filters">
                 {STATUS_ORDER.map((s) => (
                   <Chip key={s} tone={s} on={filters.statuses.includes(s)} count={countBy(s)} onClick={() => setFilters((f) => ({ ...f, statuses: toggleInList(f.statuses, s) }))}>
-                    <span aria-hidden="true">{STATUS_META[s].glyph}</span> {STATUS_META[s].label}
+                    <StatusDot status={s} /> {STATUS_META[s].label}
                   </Chip>
                 ))}
                 <Chip on={filters.timing.includes('peak-soon')} onClick={() => setFilters((f) => ({ ...f, timing: toggleInList(f.timing, 'peak-soon') }))}>Peak soon</Chip>
@@ -215,7 +216,7 @@ export function FilterGroups({ filters, setFilters }: { filters: Filters; setFil
         <div className="chips">
           {STATUS_ORDER.map((s) => (
             <Chip key={s} tone={s} on={filters.statuses.includes(s)} onClick={() => setFilters((f) => ({ ...f, statuses: toggleInList(f.statuses, s) }))}>
-              <span aria-hidden="true">{STATUS_META[s].glyph}</span> {STATUS_META[s].label}
+              <StatusDot status={s} /> {STATUS_META[s].label}
             </Chip>
           ))}
         </div>
@@ -225,7 +226,7 @@ export function FilterGroups({ filters, setFilters }: { filters: Filters; setFil
         <div className="chips">
           {activities.map((a) => (
             <Chip key={a} on={filters.activities.includes(a)} onClick={() => setFilters((f) => ({ ...f, activities: toggleInList(f.activities, a) }))}>
-              <span aria-hidden="true">{ACTIVITY_META[a].glyph}</span> {ACTIVITY_META[a].label}
+              {ACTIVITY_META[a].label}
             </Chip>
           ))}
         </div>

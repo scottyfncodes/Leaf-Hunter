@@ -21,14 +21,14 @@ const NOTES: Record<FoliageStatus, string[]> = {
   turning: [
     'Most aspens are turning above the trailhead. Lower stands still green.',
     'Good mix of green and gold. Probably a week from peak.',
-    'Color is moving fast — noticeably more than a few days ago.',
+    'Color is moving fast, noticeably more than a few days ago.',
     'Upper slopes are bright. The valley floor is still catching up.',
     'Patchy but building. South-facing groves are ahead.',
   ],
   peak: [
     'Wall-to-wall gold. This is the week.',
     'Peak. Some orange mixed in with the yellow. Windy afternoons will start knocking leaves down.',
-    'Everything is lit up. Arrive early — the pull-offs fill by mid-morning.',
+    'Everything is lit up. Arrive early: the pull-offs fill by mid-morning.',
     'Best color I have seen here. A few trees already dropping at the very top.',
     'Full peak from the trailhead to the ridge.',
   ],

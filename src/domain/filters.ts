@@ -35,14 +35,14 @@ export const TIMING_FILTER_LABEL: Record<TimingFilter, string> = {
   later: 'Later',
 };
 
-export const ACTIVITY_META: Record<Activity, { label: string; glyph: string }> = {
-  drive: { label: 'Scenic drive', glyph: '🚗' },
-  hike: { label: 'Hiking', glyph: '🥾' },
-  photo: { label: 'Photography', glyph: '📸' },
-  dog: { label: 'Dog-friendly', glyph: '🐕' },
-  accessible: { label: 'Accessible', glyph: '♿' },
-  sunrise: { label: 'Sunrise', glyph: '🌅' },
-  sunset: { label: 'Sunset', glyph: '🌄' },
+export const ACTIVITY_META: Record<Activity, { label: string; short: string }> = {
+  drive: { label: 'Scenic drive', short: 'Drive' },
+  hike: { label: 'Hiking', short: 'Hike' },
+  photo: { label: 'Photography', short: 'Photos' },
+  dog: { label: 'Dog-friendly', short: 'Dogs' },
+  accessible: { label: 'Accessible', short: 'Accessible' },
+  sunrise: { label: 'Sunrise', short: 'Sunrise' },
+  sunset: { label: 'Sunset', short: 'Sunset' },
 };
 
 export interface LocationView {

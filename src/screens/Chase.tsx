@@ -52,7 +52,7 @@ export function ChasePanel() {
         <div className="chips" style={{ marginTop: 10 }} aria-label="Preferences">
           {(['drive', 'hike', 'photo', 'dog'] as Activity[]).map((a) => (
             <Chip key={a} on={activities.includes(a)} onClick={() => setActivities((cur) => toggleInList(cur, a))}>
-              <span aria-hidden="true">{ACTIVITY_META[a].glyph}</span> {ACTIVITY_META[a].label}
+              {ACTIVITY_META[a].label}
             </Chip>
           ))}
         </div>

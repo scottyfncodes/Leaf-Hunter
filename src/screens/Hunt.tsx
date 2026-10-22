@@ -61,7 +61,7 @@ export function HuntScreen() {
             <div className="chips">
               {(Object.keys(ACTIVITY_META) as Activity[]).map((a) => (
                 <Chip key={a} on={activities.includes(a)} onClick={() => setActivities((cur) => toggleInList(cur, a))}>
-                  <span aria-hidden="true">{ACTIVITY_META[a].glyph}</span> {ACTIVITY_META[a].label}
+                  {ACTIVITY_META[a].label}
                 </Chip>
               ))}
             </div>

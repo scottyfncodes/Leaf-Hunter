@@ -52,7 +52,7 @@ export function hunt(views: LocationView[], input: HuntInput): HuntMatch[] {
       reasons.push(`Peak conditions are estimated to arrive ${formatUntil(c.estimatedPeakStart, input.now)}.`);
     } else if (c.status === 'turning') {
       fit += 18;
-      reasons.push(`Color is building — about ${c.colorPercent}% turned by the latest estimate.`);
+      reasons.push(`Color is building, about ${c.colorPercent}% turned by the latest estimate.`);
     } else if (c.status === 'past' && c.timing === 'fading') {
       fit += 6;
       reasons.push('Past peak, but some color is still holding on.');
@@ -64,7 +64,7 @@ export function hunt(views: LocationView[], input: HuntInput): HuntMatch[] {
     // Time fit.
     const oneWay = view.driveMinutes;
     if (input.budget === 'weekend') {
-      reasons.push(`About ${formatDrive(oneWay)} each way — an easy overnight.`);
+      reasons.push(`About ${formatDrive(oneWay)} each way, an easy overnight.`);
       fit += 5;
     } else {
       const slack = budget.maxOneWayMinutes - oneWay;
