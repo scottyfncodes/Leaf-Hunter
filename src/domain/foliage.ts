@@ -15,8 +15,6 @@ export const STATUS_ORDER: FoliageStatus[] = ['early', 'turning', 'peak', 'past'
 export interface StatusMeta {
   status: FoliageStatus;
   label: string;
-  /** Emoji marker used alongside text so status never relies on color alone. */
-  glyph: string;
   short: string;
   description: string;
 }
@@ -25,28 +23,24 @@ export const STATUS_META: Record<FoliageStatus, StatusMeta> = {
   early: {
     status: 'early',
     label: 'Early',
-    glyph: '🌿',
     short: 'Mostly green',
     description: 'Mostly green. A few hints of yellow at the edges.',
   },
   turning: {
     status: 'turning',
     label: 'Turning',
-    glyph: '🟡',
     short: 'Color building',
     description: 'Visible yellow and orange spreading through the groves.',
   },
   peak: {
     status: 'peak',
     label: 'Peak',
-    glyph: '🟠',
     short: 'Best color now',
     description: 'Best current color conditions. Go.',
   },
   past: {
     status: 'past',
     label: 'Past Peak',
-    glyph: '🔴',
     short: 'Fading',
     description: 'Color has passed its best point. Leaves are dropping.',
   },

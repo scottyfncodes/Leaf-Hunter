@@ -4,7 +4,7 @@ import { useApp } from '@/state/AppState';
 import { colorWave } from '@/domain/forecast';
 import { ColorWaveCard } from '@/components/ColorWave';
 import { IconBack, IconInfo } from '@/components/Icons';
-import { STATUS_META } from '@/domain/foliage';
+import { StatusDot } from '@/components/Status';
 import { LocationCard } from '@/components/LocationCard';
 
 export function WaveScreen() {
@@ -44,7 +44,7 @@ export function WaveScreen() {
             {picks.map(({ band, view }) => (
               <div key={band.band.id}>
                 <div className="small muted" style={{ margin: '6px 0 6px 4px' }}>
-                  <span aria-hidden="true">{STATUS_META[band.status].glyph}</span> {band.band.label} · {band.band.range}
+                  <StatusDot status={band.status} /> {band.band.label} · {band.band.range}
                 </div>
                 <LocationCard view={view} />
               </div>

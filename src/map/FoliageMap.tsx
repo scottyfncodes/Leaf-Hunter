@@ -317,7 +317,7 @@ export function FoliageMap({ map, views, selectedId, onSelect, origin, onLocate,
               aria-pressed={isSel}
             >
               <span className="fmap__pin" aria-hidden="true">
-                {routeIndex >= 0 ? <span className="fmap__pin-num">{routeIndex + 1}</span> : <span className="fmap__pin-glyph">{meta.glyph}</span>}
+                {routeIndex >= 0 ? <span className="fmap__pin-num">{routeIndex + 1}</span> : <span className="fmap__pin-glyph" />}
               </span>
               {(showLabels || isSel) && (
                 <span className="fmap__label" aria-hidden="true">

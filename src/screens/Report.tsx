@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '@/state/AppState';
 import { STATUS_META, STATUS_ORDER, clampPercent, statusFromPercent } from '@/domain/foliage';
+import { StatusDot } from '@/components/Status';
 import type { FoliageStatus } from '@/domain/types';
 import { searchLocations } from '@/domain/search';
 import { sortByDistance } from '@/domain/filters';
@@ -144,7 +145,7 @@ export function ReportScreen() {
           <div className="card" style={{ padding: '14px 16px 8px' }}>
             <div className="pct-display">
               <span className="pct-display__num tnum" aria-hidden="true">{percent}%</span>
-              <span className={`pill pill--${status} pill--lg`}><span aria-hidden="true">{STATUS_META[status].glyph}</span> {STATUS_META[status].label}</span>
+              <span className={`pill pill--${status} pill--lg`}><StatusDot status={status} /> {STATUS_META[status].label}</span>
             </div>
             <label className="field">
               <span className="sr-only">Percent of trees showing color</span>
@@ -158,7 +159,7 @@ export function ReportScreen() {
                   if (s === 'turning' && (percent < 25 || percent >= 70)) setPercent(50);
                   if (s === 'peak' && percent < 70) setPercent(90);
                 }}>
-                  <span aria-hidden="true">{STATUS_META[s].glyph}</span> {STATUS_META[s].label}
+                  <StatusDot status={s} /> {STATUS_META[s].label}
                 </Chip>
               ))}
             </div>

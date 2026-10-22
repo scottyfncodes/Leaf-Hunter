@@ -109,7 +109,7 @@ export function planChase(views: LocationView[], input: ChaseInput): ChasePlan |
         : `${best.stops[0]!.location.name} is the strongest color that fits the time along ${label}.`
       : peakCount > 0
         ? `${peakCount} of ${best.stops.length} stops are estimated at peak along the ${label} corridor.`
-        : `Color is building along the ${label} corridor — expect turning groves rather than full peak.`;
+        : `Color is building along the ${label} corridor. Expect turning groves rather than full peak.`;
 
   return {
     start,
