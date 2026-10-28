@@ -113,3 +113,21 @@ describe('Hunt', () => {
     expect(within(reasons[0]!).getAllByRole('listitem').length).toBeGreaterThanOrEqual(2);
   });
 });
+
+describe('data export', () => {
+  it('exports real leaf checks and the watchlist, never demo reports', async () => {
+    const { buildExport } = await import('@/screens/More');
+    const now = new Date('2026-09-25T12:00:00Z');
+    const out = buildExport(
+      [
+        { id: 'a', locationId: 'kenosha-pass', observedAt: now.toISOString(), colorPercent: 80, status: 'peak', source: 'local' },
+        { id: 'demo-x-0', locationId: 'kenosha-pass', observedAt: now.toISOString(), colorPercent: 40, status: 'turning', source: 'demo' },
+      ],
+      [{ locationId: 'maroon-bells', addedAt: now.toISOString(), lastSeenPercent: 10, lastSeenAt: now.toISOString() }],
+      now,
+    );
+    expect(out.app).toBe('leaf-hunter');
+    expect(out.reports.map((r) => r.id)).toEqual(['a']);
+    expect(out.favorites).toHaveLength(1);
+  });
+});

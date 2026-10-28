@@ -7,6 +7,21 @@ import { IconCamera, IconHome, IconInfo, IconTrash, IconWave, LeafMark } from '@
 import { Sheet } from '@/components/Sheet';
 import { useToast } from '@/components/Toast';
 import { formatShortDate } from '@/domain/dates';
+import type { FoliageReport } from '@/domain/types';
+import type { FavoriteSnapshot } from '@/storage/store';
+
+/** A portable copy of this device's data, in the shape CO Field Atlas imports. */
+export function buildExport(reports: FoliageReport[], favorites: FavoriteSnapshot[], now: Date) {
+  return { app: 'leaf-hunter', version: 1, exportedAt: now.toISOString(), reports: reports.filter((r) => r.source !== 'demo'), favorites };
+}
+
+function download(name: string, data: unknown) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
 
 export function MoreScreen() {
   const { region, origin, setHomeBase, localReports, favorites, clearLocalData, now, season } = useApp();
@@ -85,6 +100,20 @@ export function MoreScreen() {
               </div>
               <button type="button" className="btn btn--ghost btn--sm" onClick={() => setConfirm(true)} disabled={!localReports.length && !favorites.length}>
                 <IconTrash width={16} height={16} /> Clear
+              </button>
+            </div>
+            <div className="row row--between" style={{ marginTop: 12 }}>
+              <div className="small muted">Save a copy as a file, for a backup or to bring into CO Field Atlas.</div>
+              <button
+                type="button"
+                className="btn btn--ghost btn--sm"
+                disabled={!localReports.length && !favorites.length}
+                onClick={() => {
+                  download(`leaf-hunter-${now.toISOString().slice(0, 10)}.json`, buildExport(localReports, favorites, now));
+                  toast('Export saved');
+                }}
+              >
+                Export
               </button>
             </div>
           </div>
