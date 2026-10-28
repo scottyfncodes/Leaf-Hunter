@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '@/state/AppState';
 import { STATUS_META, STATUS_ORDER, clampPercent, statusFromPercent } from '@/domain/foliage';
 import { StatusDot } from '@/components/Status';
@@ -13,8 +13,12 @@ import { useToast } from '@/components/Toast';
 import { IconBack, IconCamera, IconInfo } from '@/components/Icons';
 import { formatDrive } from '@/domain/geo';
 
-/** Downscale a photo so it fits comfortably in local storage. */
-export async function shrinkImage(file: File, maxSide = 900, quality = 0.8): Promise<string> {
+/**
+ * Downscale a photo so it fits comfortably in local storage. Photos are kept
+ * as base64 in localStorage (about 5 MB per site), so 720 px at 0.7 keeps a
+ * typical photo well under 100 KB instead of 100 to 200 KB at 900 px / 0.8.
+ */
+export async function shrinkImage(file: File, maxSide = 720, quality = 0.7): Promise<string> {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -36,6 +40,18 @@ export async function shrinkImage(file: File, maxSide = 900, quality = 0.8): Pro
   }
 }
 
+/** Largest photo (as a data URL) we will try to keep on the device. */
+export const MAX_PHOTO_CHARS = 600_000;
+
+export function saveFailureMessage(reason: 'quota' | 'unavailable' | 'unverified', hasPhoto: boolean): string {
+  if (reason === 'quota') {
+    return hasPhoto
+      ? 'Not saved. This phone has no room left for Leaf Hunter, mostly because of photos. Remove the photo and save again, or export a backup in More and clear older leaf checks.'
+      : 'Not saved. This phone has no room left for Leaf Hunter. Export a backup in More, then clear older leaf checks and try again.';
+  }
+  return 'Not saved. This browser would not keep the leaf check. If you are in a private window, try a normal one. Your entries are still here.';
+}
+
 export function ReportScreen() {
   const { views, addReport, now } = useApp();
   const [params] = useSearchParams();
@@ -50,6 +66,7 @@ export function ReportScreen() {
   const [photo, setPhoto] = useState<string | undefined>();
   const [photoBusy, setPhotoBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveFailed, setSaveFailed] = useState(false);
 
   const status: FoliageStatus = statusOverride ?? statusFromPercent(percent);
 
@@ -68,7 +85,7 @@ export function ReportScreen() {
     setError(null);
     try {
       const dataUrl = await shrinkImage(file);
-      if (dataUrl.length > 1_500_000) {
+      if (dataUrl.length > MAX_PHOTO_CHARS) {
         setError('That photo is too large to keep on the device. Try a smaller one.');
       } else {
         setPhoto(dataUrl);
@@ -86,7 +103,7 @@ export function ReportScreen() {
       setError('Pick a spot first.');
       return;
     }
-    addReport({
+    const result = addReport({
       id: newId('report'),
       locationId: spot.location.id,
       observedAt: now.toISOString(),
@@ -96,6 +113,14 @@ export function ReportScreen() {
       photo,
       source: 'local',
     });
+    if (!result.ok) {
+      // Keep everything the user entered so they can retry.
+      setSaveFailed(true);
+      setError(saveFailureMessage(result.reason, Boolean(photo)));
+      return;
+    }
+    setSaveFailed(false);
+    setError(null);
     toast(`Leaf check saved for ${spot.location.name}`);
     nav(`/spot/${spot.location.id}`, { replace: true });
   };
@@ -184,7 +209,14 @@ export function ReportScreen() {
           </div>
         </section>
 
-        {error && <p className="notice notice--warn" role="alert">{error}</p>}
+        {error && (
+          <div className="notice notice--warn" role="alert">
+            <span>
+              {error}
+              {saveFailed && <> <Link to="/more">Open More</Link></>}
+            </span>
+          </div>
+        )}
 
         <button type="submit" className="btn btn--ember btn--block" disabled={!spot}>Save leaf check</button>
         <div className="notice">

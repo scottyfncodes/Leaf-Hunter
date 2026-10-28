@@ -1,6 +1,15 @@
 import type { FoliageReport } from '@/domain/types';
 
 /**
+ * Outcome of a write. `ok` is true only when the value was written and read
+ * back unchanged. Screens must not tell the user something was saved unless
+ * they got `{ ok: true }`.
+ */
+export type SaveResult =
+  | { ok: true }
+  | { ok: false; reason: 'quota' | 'unavailable' | 'unverified' };
+
+/**
  * Persistence interfaces.
  *
  * The app talks to these interfaces only. Today they are backed by
@@ -10,8 +19,8 @@ import type { FoliageReport } from '@/domain/types';
 
 export interface ReportStore {
   list(): FoliageReport[];
-  add(report: FoliageReport): void;
-  remove(id: string): void;
+  add(report: FoliageReport): SaveResult;
+  remove(id: string): SaveResult;
   clear(): void;
 }
 
@@ -34,6 +43,6 @@ export interface FavoriteStore {
 
 export interface KeyValueStore {
   get<T>(key: string): T | null;
-  set<T>(key: string, value: T): void;
+  set<T>(key: string, value: T): SaveResult;
   remove(key: string): void;
 }

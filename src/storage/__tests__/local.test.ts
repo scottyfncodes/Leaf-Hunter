@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { LocalFavoriteStore, LocalKeyValueStore, LocalReportStore, newId } from '../local';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { LocalFavoriteStore, LocalKeyValueStore, LocalReportStore, isQuotaError, newId } from '../local';
+import { requestPersistentStorage, resetPersistRequestForTests } from '../persist';
 import type { FoliageReport } from '@/domain/types';
 
 const report = (id: string): FoliageReport => ({
@@ -67,5 +68,88 @@ describe('newId', () => {
     const b = newId('rep');
     expect(a).not.toBe(b);
     expect(a.startsWith('rep-')).toBe(true);
+  });
+});
+
+function quotaError(): DOMException {
+  return new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+}
+
+describe('save results', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('reports ok only after the write reads back', () => {
+    const s = new LocalReportStore();
+    expect(s.add(report('r1'))).toEqual({ ok: true });
+    expect(JSON.parse(window.localStorage.getItem('leafhunter:reports')!)[0].id).toBe('r1');
+  });
+
+  it('surfaces a quota error instead of swallowing it', () => {
+    const s = new LocalReportStore();
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw quotaError();
+    });
+    expect(s.add(report('r1'))).toEqual({ ok: false, reason: 'quota' });
+  });
+
+  it('leaves existing reports untouched when a save fails', () => {
+    const s = new LocalReportStore();
+    s.add(report('r1'));
+    s.add(report('r2'));
+    const before = window.localStorage.getItem('leafhunter:reports');
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw quotaError();
+    });
+    expect(s.add({ ...report('r3'), photo: 'data:image/jpeg;base64,AAAA' }).ok).toBe(false);
+    vi.restoreAllMocks();
+    expect(window.localStorage.getItem('leafhunter:reports')).toBe(before);
+    expect(new LocalReportStore().list().map((r) => r.id)).toEqual(['r2', 'r1']);
+  });
+
+  it('treats other write errors as unavailable', () => {
+    const kv = new LocalKeyValueStore();
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('denied', 'SecurityError');
+    });
+    expect(kv.set('x', 1)).toEqual({ ok: false, reason: 'unavailable' });
+  });
+
+  it('flags a write that does not read back', () => {
+    const kv = new LocalKeyValueStore();
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    expect(kv.set('x', 1)).toEqual({ ok: false, reason: 'unverified' });
+  });
+
+  it('recognises quota errors across engines', () => {
+    expect(isQuotaError(quotaError())).toBe(true);
+    expect(isQuotaError({ name: 'NS_ERROR_DOM_QUOTA_REACHED' })).toBe(true);
+    expect(isQuotaError({ code: 22 })).toBe(true);
+    expect(isQuotaError(new Error('nope'))).toBe(false);
+  });
+});
+
+describe('requestPersistentStorage', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    resetPersistRequestForTests();
+  });
+
+  it('asks once, and skips the prompt when already persisted', async () => {
+    const persist = vi.fn().mockResolvedValue(true);
+    const persisted = vi.fn().mockResolvedValue(false);
+    vi.stubGlobal('navigator', { storage: { persist, persisted } });
+    expect(await requestPersistentStorage()).toBe(true);
+    expect(await requestPersistentStorage()).toBe(false);
+    expect(persist).toHaveBeenCalledTimes(1);
+
+    resetPersistRequestForTests();
+    persisted.mockResolvedValue(true);
+    expect(await requestPersistentStorage()).toBe(true);
+    expect(persist).toHaveBeenCalledTimes(1);
+  });
+
+  it('is a no-op without the Storage API', async () => {
+    vi.stubGlobal('navigator', {});
+    expect(await requestPersistentStorage()).toBe(false);
   });
 });

@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AppProvider } from '@/state/AppState';
@@ -63,6 +63,34 @@ describe('Explore', () => {
 });
 
 describe('Report flow', () => {
+  it('does not claim a save when storage is full, and keeps the form', () => {
+    new LocalReportStore().add({ id: 'old', locationId: 'kenosha-pass', observedAt: NOW.toISOString(), colorPercent: 40, status: 'turning', source: 'local' });
+    const before = window.localStorage.getItem('leafhunter:reports');
+    renderAt('/report?spot=kenosha-pass');
+    fireEvent.change(screen.getByRole('textbox', { name: /Note/ }), { target: { value: 'Gold everywhere.' } });
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('full', 'QuotaExceededError');
+    });
+    try {
+      fireEvent.click(screen.getByRole('button', { name: /Save leaf check/ }));
+    } finally {
+      setItem.mockRestore();
+    }
+    expect(screen.getByRole('alert')).toHaveTextContent(/Not saved\. This phone has no room left/);
+    expect(screen.queryByText(/Leaf check saved/)).not.toBeInTheDocument();
+    // Still on the form with the user's input intact.
+    expect(screen.getByRole('textbox', { name: /Note/ })).toHaveValue('Gold everywhere.');
+    expect(screen.getByRole('button', { name: /Save leaf check/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open More' })).toHaveAttribute('href', '/more');
+    // Existing data untouched.
+    expect(window.localStorage.getItem('leafhunter:reports')).toBe(before);
+
+    // Retrying once there is room saves and confirms.
+    fireEvent.click(screen.getByRole('button', { name: /Save leaf check/ }));
+    expect(screen.getByText('Leaf check saved for Kenosha Pass')).toBeInTheDocument();
+    expect(new LocalReportStore().list()).toHaveLength(2);
+  });
+
   it('saves a local report and it appears on the location page', () => {
     renderAt('/report?spot=kenosha-pass');
     expect(screen.getByText('Kenosha Pass')).toBeInTheDocument();

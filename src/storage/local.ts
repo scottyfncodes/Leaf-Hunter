@@ -1,5 +1,5 @@
 import type { FoliageReport } from '@/domain/types';
-import type { FavoriteSnapshot, FavoriteStore, KeyValueStore, ReportStore } from './store';
+import type { FavoriteSnapshot, FavoriteStore, KeyValueStore, ReportStore, SaveResult } from './store';
 
 const PREFIX = 'leafhunter:';
 
@@ -35,16 +35,38 @@ export function resolveStorage(): Storage {
   }
 }
 
+/** True for the browser's "storage is full" error, across engines. */
+export function isQuotaError(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const e = err as { name?: unknown; code?: unknown };
+  return (
+    e.name === 'QuotaExceededError' ||
+    e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+    e.code === 22 ||
+    e.code === 1014
+  );
+}
+
 export class LocalKeyValueStore implements KeyValueStore {
   constructor(private backend: Storage = resolveStorage()) {}
   get<T>(key: string): T | null {
     return safeParse<T>(this.backend.getItem(PREFIX + key));
   }
-  set<T>(key: string, value: T): void {
+  /**
+   * Write and read back. A failed write leaves the previous value in place
+   * (setItem is all or nothing), so existing data is never lost here.
+   */
+  set<T>(key: string, value: T): SaveResult {
+    const raw = JSON.stringify(value);
     try {
-      this.backend.setItem(PREFIX + key, JSON.stringify(value));
+      this.backend.setItem(PREFIX + key, raw);
+    } catch (err) {
+      return { ok: false, reason: isQuotaError(err) ? 'quota' : 'unavailable' };
+    }
+    try {
+      return this.backend.getItem(PREFIX + key) === raw ? { ok: true } : { ok: false, reason: 'unverified' };
     } catch {
-      // Quota exceeded or storage disabled: fail quietly, the UI stays usable.
+      return { ok: false, reason: 'unverified' };
     }
   }
   remove(key: string): void {
@@ -61,13 +83,13 @@ export class LocalReportStore implements ReportStore {
     const items = this.kv.get<FoliageReport[]>(REPORTS_KEY) ?? [];
     return Array.isArray(items) ? items : [];
   }
-  add(report: FoliageReport): void {
+  add(report: FoliageReport): SaveResult {
     const items = this.list().filter((r) => r.id !== report.id);
     items.unshift({ ...report, source: 'local' });
-    this.kv.set(REPORTS_KEY, items);
+    return this.kv.set(REPORTS_KEY, items);
   }
-  remove(id: string): void {
-    this.kv.set(REPORTS_KEY, this.list().filter((r) => r.id !== id));
+  remove(id: string): SaveResult {
+    return this.kv.set(REPORTS_KEY, this.list().filter((r) => r.id !== id));
   }
   clear(): void {
     this.kv.remove(REPORTS_KEY);
