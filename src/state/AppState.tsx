@@ -7,7 +7,8 @@ import { seasonState, type SeasonState } from '@/domain/season';
 import { DEFAULT_REGION_ID, getRegion } from '@/data/regions';
 import { buildDemoReports } from '@/data/demoReports';
 import { LocalFavoriteStore, LocalKeyValueStore, LocalReportStore } from '@/storage/local';
-import type { FavoriteSnapshot, FavoriteStore, KeyValueStore, ReportStore } from '@/storage/store';
+import type { FavoriteSnapshot, FavoriteStore, KeyValueStore, ReportStore, SaveResult } from '@/storage/store';
+import { requestPersistentStorage } from '@/storage/persist';
 
 export type Origin = LatLng & { name: string; kind: 'home' | 'gps' };
 
@@ -18,7 +19,8 @@ export interface AppState {
   /** All reports: demo + local, newest first. */
   reports: FoliageReport[];
   localReports: FoliageReport[];
-  addReport: (report: FoliageReport) => void;
+  /** Returns `{ ok: true }` only when the report was written and read back. */
+  addReport: (report: FoliageReport) => SaveResult;
   removeReport: (id: string) => void;
   clearLocalData: () => void;
   favorites: FavoriteSnapshot[];
@@ -127,9 +129,11 @@ export function AppProvider({ children, stores = defaultStores(), initialNow }: 
     });
   }, []);
 
-  const addReport = useCallback((report: FoliageReport) => {
-    storesRef.current.reports.add(report);
+  const addReport = useCallback((report: FoliageReport): SaveResult => {
+    const result = storesRef.current.reports.add(report);
     setLocalReports(storesRef.current.reports.list());
+    if (result.ok) void requestPersistentStorage();
+    return result;
   }, []);
 
   const removeReport = useCallback((id: string) => {
